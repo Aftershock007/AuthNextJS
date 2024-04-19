@@ -1,16 +1,19 @@
 "use client"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import axios from "axios"
 import Link from "next/link"
-// import { useRouter } from "next/router"
 
 export default function VerifyEmailPage() {
-  //   const router = useRouter()
   const [token, setToken] = useState("")
   const [verified, setVerified] = useState(false)
   const [error, setError] = useState(false)
 
-  async function verifyUserEmail() {
+  useEffect(() => {
+    const urlToken = window.location.search.split("=")[1]
+    setToken(urlToken || "")
+  }, [])
+
+  const verifyUserEmail = useCallback(async () => {
     try {
       await axios.post("/api/users/verifyemail", { token })
       setVerified(true)
@@ -19,22 +22,14 @@ export default function VerifyEmailPage() {
       setError(true)
       console.log(error.response.data)
     }
-  }
-
-  useEffect(() => {
-    const urlToken = window.location.search.split("=")[1]
-    setToken(urlToken || "")
-    // const { query } = router
-    // const urlToken = query.token
-    // setToken(urlToken ? urlToken[1] : "")
-  }, [])
+  }, [token])
 
   useEffect(() => {
     setError(false)
     if (token.length > 0) {
       verifyUserEmail()
     }
-  }, [token])
+  }, [token, verifyUserEmail])
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
